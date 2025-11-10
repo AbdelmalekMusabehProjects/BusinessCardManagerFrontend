@@ -1,0 +1,60 @@
+<h2>Add Business Card</h2>
+
+<form (ngSubmit)="submitForm()">
+
+  <input [(ngModel)]="card.name" name="name" placeholder="Full Name" required><br>
+
+  <select [(ngModel)]="card.gender" name="gender" required>
+    <option value="" disabled>Select Gender</option>
+    <option>Male</option>
+    <option>Female</option>
+    <option>Other</option>
+  </select><br>
+
+  <input [(ngModel)]="card.dateOfBirth" name="dateOfBirth" type="date"><br>
+
+  <input [(ngModel)]="card.email" name="email" placeholder="Email"><br>
+
+  <input [(ngModel)]="card.phone" name="phone" placeholder="Phone"><br>
+
+  <textarea [(ngModel)]="card.address" name="address" placeholder="Address"></textarea>
+
+  <br><br>
+  Upload Photo: <br>
+  <input type="file" accept="image/*" (change)="uploadPhoto($event)"><br>
+
+  <hr>
+
+  <button type="button" (click)="preview = !preview">Preview</button>
+  <button type="submit">Submit</button>
+</form>
+
+<hr>
+
+<!-- CSV & XML import -->
+<input type="file" (change)="onFileSelected($event)">
+<button (click)="importCSV()">Import CSV</button>
+<button (click)="importXML()">Import XML</button>
+
+<!-- Preview -->
+
+
+@if(preview){
+<div style="border:1px solid #ccc;padding:15px;margin-top:15px">
+  <h3>Preview</h3>
+
+  @if(photoPreview){
+ <img [src]="photoPreview"
+       width="120"
+       style="border-radius:5px">
+  }
+ <br><br>
+  <p><b>{{card.name}}</b></p>
+  <p>{{card.gender}}</p>
+  <p>{{card.dateOfBirth}}</p>
+  <p>{{card.email}}</p>
+  <p>{{card.phone}}</p>
+  <p>{{card.address}}</p>
+</div>
+}
+

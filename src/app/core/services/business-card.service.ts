@@ -1,0 +1,46 @@
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { BusinessCard } from '../models/business-card.model';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class BusinessCardService {
+
+  private baseUrl = 'https://localhost:5001/api/business-card';
+
+  constructor(private http: HttpClient) {}
+
+  create(card: BusinessCard): Observable<any> {
+    return this.http.post(`${this.baseUrl}/create`, card);
+  }
+
+  getAll(): Observable<BusinessCard[]> {
+    return this.http.get<BusinessCard[]>(`${this.baseUrl}/get-all`);
+  }
+
+  delete(id: number): Observable<any> {
+    return this.http.delete(`${this.baseUrl}/delete/${id}`);
+  }
+
+  importCsv(file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post(`${this.baseUrl}/import/csv`, formData);
+  }
+
+  importXml(file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post(`${this.baseUrl}/import/xml`, formData);
+  }
+
+  exportCsv() {
+    return this.http.get(`${this.baseUrl}/export/csv`, { responseType: 'blob' });
+  }
+
+  exportXml() {
+    return this.http.get(`${this.baseUrl}/export/xml`, { responseType: 'blob' });
+  }
+}
