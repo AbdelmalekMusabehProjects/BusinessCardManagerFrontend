@@ -1,60 +1,94 @@
-<h2>Add Business Card</h2>
+<div class="page-wrapper">
 
-<form (ngSubmit)="submitForm()">
+  <!-- FORM -->
+  <mat-card class="card-container">
+    <h2 class="title">Add Business Card</h2>
+    <form (ngSubmit)="submitForm()" class="form-grid">
 
-  <input [(ngModel)]="card.name" name="name" placeholder="Full Name" required><br>
+      <!-- Full Name -->
+      <mat-form-field appearance="outline">
+        <mat-label>Full Name</mat-label>
+        <input matInput [(ngModel)]="card.name" name="name" required>
+      </mat-form-field>
 
-  <select [(ngModel)]="card.gender" name="gender" required>
-    <option value="" disabled>Select Gender</option>
-    <option>Male</option>
-    <option>Female</option>
-    <option>Other</option>
-  </select><br>
+      <!-- Gender -->
+      <mat-form-field appearance="outline">
+        <mat-label>Gender</mat-label>
+        <mat-select [(ngModel)]="card.gender" name="gender" required>
+          <mat-option value="Male">Male</mat-option>
+          <mat-option value="Female">Female</mat-option>
+          <mat-option value="Other">Other</mat-option>
+        </mat-select>
+      </mat-form-field>
 
-  <input [(ngModel)]="card.dateOfBirth" name="dateOfBirth" type="date"><br>
+      <!-- Date of Birth -->
+      <mat-form-field appearance="outline">
+        <mat-label>Date of Birth</mat-label>
+        <input matInput [matDatepicker]="picker" [(ngModel)]="card.dateOfBirth" name="dateOfBirth">
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-form-field>
 
-  <input [(ngModel)]="card.email" name="email" placeholder="Email"><br>
+      <!-- Email -->
+      <mat-form-field appearance="outline">
+        <mat-label>Email</mat-label>
+        <input matInput type="email" [(ngModel)]="card.email" name="email">
+      </mat-form-field>
 
-  <input [(ngModel)]="card.phone" name="phone" placeholder="Phone"><br>
+      <!-- Phone -->
+      <mat-form-field appearance="outline">
+        <mat-label>Phone</mat-label>
+        <input matInput type="tel" [(ngModel)]="card.phone" name="phone">
+      </mat-form-field>
 
-  <textarea [(ngModel)]="card.address" name="address" placeholder="Address"></textarea>
+      <!-- Address -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Address</mat-label>
+        <textarea matInput [(ngModel)]="card.address" name="address"></textarea>
+      </mat-form-field>
 
-  <br><br>
-  Upload Photo: <br>
-  <input type="file" accept="image/*" (change)="uploadPhoto($event)"><br>
+      <!-- Photo -->
+      <div class="photo-upload">
+        <label>Upload Photo:</label>
+        <input type="file" accept="image/*" (change)="uploadPhoto($event)">
+      </div>
 
-  <hr>
+      <!-- Buttons -->
+      <div class="button-row">
+        <button mat-stroked-button color="primary" type="button" (click)="preview = !preview">
+          {{ preview ? 'Hide Preview' : 'Show Preview' }}
+        </button>
+        <button mat-raised-button color="accent" type="submit">Submit</button>
+      </div>
+    </form>
+  </mat-card>
 
-  <button type="button" (click)="preview = !preview">Preview</button>
-  <button type="submit">Submit</button>
-</form>
-
-<hr>
-
-<!-- CSV & XML import -->
-<input type="file" (change)="onFileSelected($event)">
-<button (click)="importCSV()">Import CSV</button>
-<button (click)="importXML()">Import XML</button>
-
-<!-- Preview -->
-
-
-@if(preview){
-<div style="border:1px solid #ccc;padding:15px;margin-top:15px">
-  <h3>Preview</h3>
-
-  @if(photoPreview){
- <img [src]="photoPreview"
-       width="120"
-       style="border-radius:5px">
+  <!-- PREVIEW -->
+  @if(preview){
+  <mat-card class="preview-card">
+    <div class="left-section">
+      @if(photoPreview){
+      <img [src]="photoPreview" class="preview-photo">
+      }
+    </div>
+    <div class="right-section">
+      <h3 class="person-name">{{ card.name }}</h3>
+      <p>{{ card.gender }}</p>
+      <p>{{ card.dateOfBirth }}</p>
+      <p><b>Email:</b> {{ card.email }}</p>
+      <p><b>Phone:</b> {{ card.phone }}</p>
+      <p><b>Address:</b> {{ card.address }}</p>
+    </div>
+  </mat-card>
   }
- <br><br>
-  <p><b>{{card.name}}</b></p>
-  <p>{{card.gender}}</p>
-  <p>{{card.dateOfBirth}}</p>
-  <p>{{card.email}}</p>
-  <p>{{card.phone}}</p>
-  <p>{{card.address}}</p>
-</div>
-}
 
+  <mat-card class="import-card">
+    <h3>Import Data</h3>
+    <input type="file" (change)="onFileSelected($event)">
+    <div class="import-buttons">
+      <button mat-stroked-button color="primary" (click)="importCSV()">Import CSV</button>
+      <button mat-stroked-button color="accent" (click)="importXML()">Import XML</button>
+    </div>
+  </mat-card>
+
+</div>

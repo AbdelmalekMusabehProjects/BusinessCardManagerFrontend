@@ -1,1 +1,35 @@
-<p>business-cards works!</p>
+<div class="cards-wrapper">
+
+  @for (card of businessCards; track $index) {
+    <div [id]="'card-' + card.id">
+  <mat-card class="card-preview">
+    <div class="left-section">
+      
+      @if (card.photo){
+      <img [src]="card.photo" class="preview-photo">
+      }
+      @else{
+      <div class="placeholder-photo">{{ card.name?.charAt(0) }}</div>
+      }
+      
+    </div>
+    <div class="right-section">
+      <h3 class="person-name">{{ card.name }}</h3>
+
+      @if (card.gender){ <p><b>Genedr:</b>{{ card.gender }}</p>}
+      @if (card.dateOfBirth){<p><b>DOB:</b>{{ card.dateOfBirth | date }}</p>}
+      @if (card.email){<p><b>Email:</b> {{ card.email }}</p>}
+      @if (card.phone){<p><b>Phone:</b> {{ card.phone }}</p>}
+      @if (card.address){<p><b>Address:</b> {{ card.address }}</p>}
+
+      <div class="button-row">
+        <button mat-stroked-button color="primary" (click)="exportCard(card)">Export</button>
+        <button mat-stroked-button color="warn" (click)="deleteCard(card.id!)">Delete</button>
+      </div>
+    </div>
+  </mat-card>
+    </div>
+
+  }
+ 
+</div>

@@ -1,5 +1,5 @@
 export class BusinessCard {
-  id?: number;
+  id: number | undefined;
   name: string | undefined;
   gender: string | undefined;
   dateOfBirth?: Date;
