@@ -37,11 +37,11 @@ export class BusinessCardService {
     return this.http.post(`${this.baseUrl}/import/xml`, formData);
   }
 
-  exportCsv() {
-    return this.http.get(`${this.baseUrl}/export/csv`, { responseType: 'blob' });
+  exportCsv(id:number) {
+    return this.http.get(`${this.baseUrl}/export/csv/${id}`, { responseType: 'blob' });
   }
 
-  exportXml() {
-    return this.http.get(`${this.baseUrl}/export/xml`, { responseType: 'blob' });
+  exportXml(id:number) {
+    return this.http.get(`${this.baseUrl}/export/xml/${id}`, { responseType: 'blob' });
   }
 }

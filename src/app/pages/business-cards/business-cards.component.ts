@@ -9,10 +9,9 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatCardModule } from '@angular/material/card';
 import { BusinessCardService } from '../../core/services/business-card.service';
 import { BusinessCard } from '../../core/models/business-card.model';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
 import { DatePipe } from '@angular/common';
 import { BusinessCardWorkflowService } from '../../core/services/business-card-workflow.service';
+import { SharedService } from '../../core/shared/shared.service';
 
 @Component({
   selector: 'app-business-cards',
@@ -36,7 +35,8 @@ export class BusinessCardsComponent implements OnInit {
   businessCards: BusinessCard[] = [];
   loading: boolean = true;
 constructor(private businessCardService: BusinessCardService,
-            private cardWorkflowService:BusinessCardWorkflowService) {}
+            private cardWorkflowService:BusinessCardWorkflowService,
+            private sharedService:SharedService) {}
 
   ngOnInit() {
   this.cardWorkflowService.cards$.subscribe(cards => {
@@ -61,7 +61,7 @@ constructor(private businessCardService: BusinessCardService,
       this.loading = false;
     },
     error: (err) => {
-      console.error('Failed to load business cards', err);
+      console.error(err);
       this.loading = false;
     }
   });
@@ -70,26 +70,59 @@ constructor(private businessCardService: BusinessCardService,
 
     deleteCard(id: number) {
     this.businessCardService.delete(id).subscribe({
-      next: () => {
+      next: (card) => {
+        this.sharedService.showToastMessage(card.message)
         this.businessCards = this.businessCards.filter(card => card.id !== id);
       },
-      error: (err) => console.error('Delete failed', err)
+      error: (err) => console.error(err)
     });
   }
 
-  exportCard(card: BusinessCard) {
-  const element = document.getElementById(`card-${card.id}`);
+  exportCSVCard(card: BusinessCard) {
+  this.businessCardService.exportCsv(card.id!).subscribe({
+    next: (data: Blob) => {
+      const blob = new Blob([data], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
 
-  html2canvas(element!, { scale: 3 }).then(canvas => {
-    const imgData = canvas.toDataURL('image/png');
-    const pdf = new jsPDF('p', 'mm', 'a4');
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `business_card_${card.id}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
 
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const ratio = canvas.height / canvas.width;
-    const imgHeight = pageWidth * ratio;
+      window.URL.revokeObjectURL(url);
+      this.sharedService.showToastMessage('CSV File Exported Successfully!')
 
-    pdf.addImage(imgData, 'PNG', 0, 10, pageWidth, imgHeight);
-    pdf.save(`${card.name}_business_card.pdf`);
+    },
+    error: (err) => {
+      console.error(err);
+    }
   });
 }
+
+exportXMLCard(card: BusinessCard) {
+  this.businessCardService.exportXml(card.id!).subscribe({
+    next: (data: Blob) => {
+      const blob = new Blob([data], { type: 'application/xml' });
+      const url = window.URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `business_card_${card.id}.xml`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      window.URL.revokeObjectURL(url);
+      this.sharedService.showToastMessage('XML File Exported Successfully!')
+
+    },
+    error: (err) => {
+      console.error(err);
+    }
+  });
+}
+
+
 }

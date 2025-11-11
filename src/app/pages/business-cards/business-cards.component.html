@@ -6,7 +6,7 @@
     <div class="left-section">
       
       @if (card.photo){
-      <img [src]="card.photo" class="preview-photo">
+      <img [src]="'data:image/png;base64,' + card.photo" class="preview-photo">
       }
       @else{
       <div class="placeholder-photo">{{ card.name?.charAt(0) }}</div>
@@ -23,7 +23,8 @@
       @if (card.address){<p><b>Address:</b> {{ card.address }}</p>}
 
       <div class="button-row">
-        <button mat-stroked-button color="primary" (click)="exportCard(card)">Export</button>
+        <button mat-stroked-button color="primary" (click)="exportCSVCard(card)">Export CSV</button>
+        <button mat-stroked-button color="primary" (click)="exportXMLCard(card)">Export XML</button>
         <button mat-stroked-button color="warn" (click)="deleteCard(card.id!)">Delete</button>
       </div>
     </div>

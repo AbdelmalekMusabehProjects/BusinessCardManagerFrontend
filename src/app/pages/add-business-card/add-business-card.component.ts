@@ -10,7 +10,8 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatCardModule } from '@angular/material/card';
 import { BusinessCardWorkflowService } from '../../core/services/business-card-workflow.service';
-
+import { DatePipe } from '@angular/common';
+import { SharedService } from '../../core/shared/shared.service';
 @Component({
   selector: 'app-add-business-card',
   standalone: true,
@@ -22,7 +23,8 @@ import { BusinessCardWorkflowService } from '../../core/services/business-card-w
     MatSelectModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatCardModule
+    MatCardModule,
+    DatePipe,
   ],
   templateUrl: './add-business-card.component.html',
   styleUrl: './add-business-card.component.css'
@@ -33,16 +35,19 @@ export class AddBusinessCardComponent {
 
   preview = false;
   photoPreview: string | ArrayBuffer | null = null;
-  importFile: File | null = null;
-
+  isDragging: boolean = false;
+  selectedFile: File | null = null;
+  
   constructor(private cardService: BusinessCardService,
-              private cardWorkflowService:BusinessCardWorkflowService) {}
+              private cardWorkflowService:BusinessCardWorkflowService,
+              private sharedService:SharedService) {}
 
   submitForm() {
 
   this.cardService.create(this.card).subscribe((created: any) => {
     this.cardWorkflowService.addCard(created.result);
-    alert('Business Card Created!');
+    this.sharedService.showToastMessage(created.message);
+
     this.card = new BusinessCard();
     this.preview = false;
     this.photoPreview = null;
@@ -50,38 +55,63 @@ export class AddBusinessCardComponent {
 }
 
   uploadPhoto(event: any) {
-    const file = event.target.files[0];
-    const reader = new FileReader();
-    reader.onload = () => {
-      this.photoPreview = reader.result;
-      this.card.photo = reader.result as string;
-    };
-    reader.readAsDataURL(file);
-  }
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = () => {
+    const result = reader.result as string;
+
+    this.photoPreview = result;
+
+    const pureBase64 = result.split(',')[1];
+
+    this.card.photo = pureBase64;
+  };
+
+  reader.readAsDataURL(file);
+}
+
 
   onFileSelected(event: any) {
-    this.importFile = event.target.files[0];
+  this.selectedFile = event.target.files[0];
+}
+
+
+ importCSV() {
+  if (!this.selectedFile) {
+    this.sharedService.showToastMessage("Please select or drop a CSV file.");
+    return;
   }
 
-  importCSV() {
-    if (this.importFile) {
-      this.cardService.importCsv(this.importFile).subscribe(() => {
-        alert('CSV Imported Successfully!');
-      });
-    }
-  }
-
-  importXML() {
-    if (this.importFile) {
-      this.cardService.importXml(this.importFile).subscribe(() => {
-        alert('XML Imported Successfully!');
+  this.cardService.importCsv(this.selectedFile).subscribe({
+    next: (card) => {
+        this.sharedService.showToastMessage(card.message);
         this.fetchBusinessCards();
+    },
+    error: (err) => console.error(err)
+  });
+}
 
-      });
-    }
+
+importXML() {
+  if (!this.selectedFile) {
+    this.sharedService.showToastMessage("Please select or drop an XML file.");
+    return;
   }
 
-   fetchBusinessCards() {
+  this.cardService.importXml(this.selectedFile).subscribe({
+    next: (card) => {
+        this.sharedService.showToastMessage(card.message);     
+        this.fetchBusinessCards();
+    },
+    error: (err) => console.error(err)
+  });
+}
+
+
+  fetchBusinessCards() {
 
   this.cardService.getAll().subscribe({
     next: (cards: any) => {
@@ -90,8 +120,33 @@ export class AddBusinessCardComponent {
 
     },
     error: (err) => {
-      console.error('Failed to load business cards', err);
+      this.sharedService.showToastMessage("Failed to load business cards");
+      console.error(err);
     }
   });
 }
+
+  onDragOver(event: DragEvent) {
+    debugger
+    event.preventDefault();
+    this.isDragging = true;
+  }
+
+  onDragLeave(event: DragEvent) {
+    debugger
+    event.preventDefault();
+    this.isDragging = false;
+  }
+
+  onDrop(event: DragEvent) {
+    debugger
+    event.preventDefault();
+    this.isDragging = false;
+
+    if (event.dataTransfer?.files.length) {
+      this.selectedFile = event.dataTransfer.files[0];
+    }
+  }
+
+
 }

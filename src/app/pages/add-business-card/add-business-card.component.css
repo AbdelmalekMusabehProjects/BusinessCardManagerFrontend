@@ -127,3 +127,24 @@ input[type="file"] {
     max-width: 500px;
   }
 }
+
+.drop-zone {
+  border: 2px dashed #aaa;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  transition: border-color 0.3s, background 0.3s;
+  cursor: pointer;
+  margin-bottom: 15px;
+}
+
+.drop-zone.dragging {
+  border-color: #3f51b5;
+  background: #e8eaf6;
+}
+
+.drop-zone .or {
+  margin: 10px 0;
+  font-weight: bold;
+  color: #666;
+}

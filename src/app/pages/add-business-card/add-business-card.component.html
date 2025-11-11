@@ -73,8 +73,8 @@
     </div>
     <div class="right-section">
       <h3 class="person-name">{{ card.name }}</h3>
-      <p>{{ card.gender }}</p>
-      <p>{{ card.dateOfBirth }}</p>
+      <p><b>Gender:</b>{{ card.gender }}</p>
+      <p><b>DOB:</b>{{ card.dateOfBirth | date:'shortDate' }}</p>
       <p><b>Email:</b> {{ card.email }}</p>
       <p><b>Phone:</b> {{ card.phone }}</p>
       <p><b>Address:</b> {{ card.address }}</p>
@@ -83,12 +83,29 @@
   }
 
   <mat-card class="import-card">
-    <h3>Import Data</h3>
+  <h3>Import Data</h3>
+
+  <!-- DRAG & DROP -->
+  <div class="drop-zone"
+       (dragover)="onDragOver($event)"
+       (dragleave)="onDragLeave($event)"
+       (drop)="onDrop($event)"
+       [class.dragging]="isDragging">
+
+    <p>Drag & Drop your CSV/XML file here</p>
+    <p class="or">or</p>
+
     <input type="file" (change)="onFileSelected($event)">
-    <div class="import-buttons">
-      <button mat-stroked-button color="primary" (click)="importCSV()">Import CSV</button>
-      <button mat-stroked-button color="accent" (click)="importXML()">Import XML</button>
-    </div>
-  </mat-card>
+  </div>
+    @if(selectedFile){
+      <div class="file-preview">
+        Selected file: {{ selectedFile.name }}
+      </div>
+    }
+  <div class="import-buttons">
+    <button mat-stroked-button color="primary" (click)="importCSV()">Import CSV</button>
+    <button mat-stroked-button color="accent" (click)="importXML()">Import XML</button>
+  </div>
+</mat-card>
 
 </div>
