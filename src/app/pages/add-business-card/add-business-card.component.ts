@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { BusinessCard } from '../../core/models/business-card.model';
 import { BusinessCardService } from '../../core/services/business-card.service';
 import { FormsModule } from '@angular/forms';
@@ -37,7 +37,9 @@ export class AddBusinessCardComponent {
   photoPreview: string | ArrayBuffer | null = null;
   isDragging: boolean = false;
   selectedFile: File | null = null;
-  
+  isPhotoDragging = false;
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
+
   constructor(private cardService: BusinessCardService,
               private cardWorkflowService:BusinessCardWorkflowService,
               private sharedService:SharedService) {}
@@ -45,7 +47,9 @@ export class AddBusinessCardComponent {
   submitForm() {
 
   this.cardService.create(this.card).subscribe((created: any) => {
+    if(created.success)
     this.cardWorkflowService.addCard(created.result);
+    
     this.sharedService.showToastMessage(created.message);
 
     this.card = new BusinessCard();
@@ -55,23 +59,18 @@ export class AddBusinessCardComponent {
 }
 
   uploadPhoto(event: any) {
-  const file = event.target.files[0];
-  if (!file) return;
+    const file = event.dataTransfer?.files?.[0] || event.target.files?.[0];
+    if (!file) return;
 
-  const reader = new FileReader();
-
-  reader.onload = () => {
-    const result = reader.result as string;
-
-    this.photoPreview = result;
-
-    const pureBase64 = result.split(',')[1];
-
-    this.card.photo = pureBase64;
-  };
-
-  reader.readAsDataURL(file);
-}
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      this.photoPreview = result;
+      const pureBase64 = result.split(',')[1];
+      this.card.photo = pureBase64;
+    };
+    reader.readAsDataURL(file);
+  }
 
 
   onFileSelected(event: any) {
@@ -146,6 +145,13 @@ importXML() {
     if (event.dataTransfer?.files.length) {
       this.selectedFile = event.dataTransfer.files[0];
     }
+  }
+
+
+  removePhoto() {
+    this.photoPreview = null;
+    this.fileInput.nativeElement.value = '';
+    this.card.photo = undefined;
   }
 
 
